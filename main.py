@@ -2,12 +2,13 @@
 Author: weijay
 Date: 2023-03-04 17:33:27
 LastEditors: weijay
-LastEditTime: 2023-03-05 17:26:58
+LastEditTime: 2023-03-05 17:38:54
 Description: jpg to gif GUI
 '''
 
 import wx
 from convert import convert_to_gif
+from helper import gen_random_file_name
 
 class ToGIF(wx.Frame):
 
@@ -54,6 +55,9 @@ class ToGIF(wx.Frame):
         self.run_btn = wx.Button(self, label = "執行", size = (100, -1))
         self.run_btn.Bind(wx.EVT_BUTTON, self.onRun)
 
+        # 檔案儲存位置文字
+        self.save_file_path_text = wx.StaticText(self)
+
         run_block = wx.BoxSizer(wx.HORIZONTAL)
         run_block.Add(self.save_file_btn, 0, wx.ALL, 10)
         run_block.Add(self.run_btn, 0, wx.ALL, 10)
@@ -77,6 +81,7 @@ class ToGIF(wx.Frame):
         vbox.Add(self.delete_one_file_btn, 0, wx.ALL, 10)
         vbox.Add(self.speed_block, 0, wx.ALL, 10)
         vbox.Add(self.run_block, 0, wx.UP, 10)
+        vbox.Add(self.save_file_path_text, 0, wx.ALL, 10)
 
         self.SetSizer(vbox)
 
@@ -129,18 +134,24 @@ class ToGIF(wx.Frame):
 
         dlg = wx.FileDialog(
             self, message = "選擇儲存位置",
+            wildcard="GIF files (*.gif)|*.gif",
             style=wx.FD_SAVE|wx.FD_OVERWRITE_PROMPT|wx.FD_CHANGE_DIR
         )
 
-        dlg.SetFilename("test.gif")
+        dlg.SetFilename(gen_random_file_name())
 
         if dlg.ShowModal() == wx.ID_OK:
 
             path = dlg.GetPath()
 
+            if not path.endswith(".gif"):
+                path += ".gif"
+
             self.save_path = path
 
         dlg.Destroy()
+
+        self.save_file_path_text.SetLabel(f"將儲存到: {path}")
 
     def onRun(self, evnet):
         """ 執行轉換動作 """
@@ -173,6 +184,10 @@ class ToGIF(wx.Frame):
         del busy
 
         wx.MessageBox("轉換完成")
+
+        self.list_box.Clear()
+        self.save_path = None
+        self.save_file_path_text.SetLabel("")
 
 if __name__ == "__main__":
 

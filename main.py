@@ -2,7 +2,7 @@
 Author: weijay
 Date: 2023-03-04 17:33:27
 LastEditors: weijay
-LastEditTime: 2023-03-04 22:34:39
+LastEditTime: 2023-03-05 17:26:58
 Description: jpg to gif GUI
 '''
 
@@ -20,11 +20,19 @@ class ToGIF(wx.Frame):
         self.open_file_btn.Bind(wx.EVT_BUTTON, self.onOpenFile)
 
         # 建立清除選取按鈕
-        self.delete_file_btn = wx.Button(self, label = "清除檔案", size = (100, -1))
+        self.delete_file_btn = wx.Button(self, label = "清除全部", size = (100, -1))
         self.delete_file_btn.Bind(wx.EVT_BUTTON, self.onClearFile)
 
         # 建立顯示選取的檔案 Box
-        self.list_box = wx.ListBox(self, style=wx.LB_SINGLE)
+        self.list_box = wx.ListBox(self, style=wx.LB_MULTIPLE)
+        self.list_box.Bind(wx.EVT_LISTBOX, self.updateDeleteBtn)
+
+        # 建立刪除檔案按鈕
+        self.delete_one_file_btn = wx.Button(self, label = "刪除檔案", size = (100, -1))
+        self.delete_one_file_btn.Bind(wx.EVT_BUTTON, self.onDeleteOneFile)
+
+        # 禁用按鈕
+        self.delete_one_file_btn.Disable()
 
         # 建立調整速度輸入區塊
         speed_text = wx.StaticText(self, -1, label = "設定播放速度 (s)")
@@ -46,7 +54,6 @@ class ToGIF(wx.Frame):
         self.run_btn = wx.Button(self, label = "執行", size = (100, -1))
         self.run_btn.Bind(wx.EVT_BUTTON, self.onRun)
 
-
         run_block = wx.BoxSizer(wx.HORIZONTAL)
         run_block.Add(self.save_file_btn, 0, wx.ALL, 10)
         run_block.Add(self.run_btn, 0, wx.ALL, 10)
@@ -67,8 +74,9 @@ class ToGIF(wx.Frame):
         vbox = wx.BoxSizer(wx.VERTICAL)
         vbox.Add(hbox, 0)
         vbox.Add(self.list_box, 1, wx.EXPAND|wx.ALL, 10)
+        vbox.Add(self.delete_one_file_btn, 0, wx.ALL, 10)
         vbox.Add(self.speed_block, 0, wx.ALL, 10)
-        vbox.Add(self.run_block, 0, wx.UP|wx.BOTTOM, 10)
+        vbox.Add(self.run_block, 0, wx.UP, 10)
 
         self.SetSizer(vbox)
 
@@ -93,6 +101,28 @@ class ToGIF(wx.Frame):
         """ 清除檔案動作 """
         
         self.list_box.Clear()
+
+    def onDeleteOneFile(self, event):
+        """ 刪除選取的檔案 """
+
+        selections = self.list_box.GetSelections()
+
+        if selections:
+            
+            for i in reversed(selections):
+                self.list_box.Delete(i)
+                
+
+            self.delete_one_file_btn.Disable()
+
+    def updateDeleteBtn(self, event):
+        """ 更新刪除檔案的狀態 """
+
+        if self.list_box.GetSelections():
+            self.delete_one_file_btn.Enable()
+        
+        else:
+            self.delete_one_file_btn.Disable()
 
     def onSaveFile(self, event):
         """ 儲存檔案動作 """

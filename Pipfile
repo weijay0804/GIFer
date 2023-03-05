@@ -5,9 +5,9 @@ name = "pypi"
 
 [packages]
 wxpython = "*"
-pyinstaller = "*"
 
 [dev-packages]
+pyinstaller = "*"
 
 [requires]
 python_version = "3.9"
